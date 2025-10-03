@@ -66,12 +66,10 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'email_verified_at' => now(), // Auto-verify email
         ]);
 
-        // Send email verification notification
-        $user->sendEmailVerificationNotification();
-
-        // Log successful registration
+        // Log successful registration (no email needed)
         Log::info('User registered successfully', [
             'email' => $user->email,
             'user_id' => $user->id
@@ -79,9 +77,8 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User registered successfully. Please verify your email address.',
+            'message' => 'User registered successfully!',
             'user' => $user->only(['id', 'name', 'email']),
-            'email_verification_sent' => true
         ], 201);
     }
 
