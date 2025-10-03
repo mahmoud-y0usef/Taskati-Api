@@ -8,6 +8,31 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Zoho OAuth Callback
+Route::get('/callback', function () {
+    $code = request('code');
+    $error = request('error');
+    
+    if ($error) {
+        return response()->json([
+            'error' => 'Authorization failed',
+            'details' => $error
+        ], 400);
+    }
+    
+    if ($code) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Authorization successful! Copy this code and run: php artisan zoho:auth get-token',
+            'code' => $code
+        ]);
+    }
+    
+    return response()->json([
+        'error' => 'No authorization code received'
+    ], 400);
+});
+
 // Password Reset Routes
 Route::get('/reset-password', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.reset.submit');

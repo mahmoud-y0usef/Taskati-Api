@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Channels\ZohoMailChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -45,6 +46,27 @@ class VerifyEmailNotification extends Notification
             ->action('Verify Email Address', $verificationUrl)
             ->line('If you did not create an account, no further action is required.')
             ->line('This verification link will expire in 60 minutes.');
+    }
+
+    /**
+     * Get the Zoho Mail representation of the notification.
+     */
+    public function toZohoMail(object $notifiable): array
+    {
+        $verificationUrl = $this->verificationUrl($notifiable);
+        
+        $htmlContent = view('emails.verify-email', [
+            'user' => $notifiable,
+            'verificationUrl' => $verificationUrl
+        ])->render();
+
+        return [
+            'email' => $notifiable->email,
+            'name' => $notifiable->name,
+            'subject' => 'Verify Your Email Address - ' . config('app.name'),
+            'content' => $htmlContent,
+            'text_content' => "Hello {$notifiable->name}, Please verify your email by visiting: {$verificationUrl}"
+        ];
     }
 
     /**
