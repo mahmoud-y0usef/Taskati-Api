@@ -1,61 +1,194 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Taskati API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive Laravel 11 API for task management with JWT authentication and automatic email verification.
 
-## About Laravel
+## Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Taskati API is a robust backend service designed for task management applications. Built with Laravel 11, it provides secure authentication, comprehensive task CRUD operations, and user profile management with automatic email verification.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Authentication System
+- JWT-based authentication using tymon/jwt-auth
+- User registration with automatic email verification
+- Secure login/logout functionality
+- Password reset capability
+- Profile management (info, password, profile image)
 
-## Learning Laravel
+### Task Management
+- Complete CRUD operations for tasks
+- Task status management (todo, doing, done)
+- Color-coded task organization
+- Time-based task scheduling
+- User-specific task isolation
+- Task filtering and search capabilities
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Email System
+- Automatic email verification (no SMTP required)
+- Log-based email handling for development
+- Simplified verification process
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## API Endpoints
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Authentication
+```
+POST /api/register          - User registration
+POST /api/login             - User login
+POST /api/logout            - User logout
+POST /api/refresh           - Refresh JWT token
+POST /api/profile           - Get user profile
+PUT  /api/profile/info      - Update profile information
+PUT  /api/profile/password  - Update password
+POST /api/profile/image     - Update profile image
+POST /api/resend-verification - Resend verification email
+```
 
-## Laravel Sponsors
+### Tasks
+```
+GET    /api/tasks          - Get all user tasks
+POST   /api/tasks          - Create new task
+GET    /api/tasks/{id}     - Get specific task
+PUT    /api/tasks/{id}     - Update task
+DELETE /api/tasks/{id}     - Delete task
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Installation
 
-### Premium Partners
+### Requirements
+- PHP 8.1 or higher
+- Composer
+- MySQL/MariaDB
+- Laravel 11
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Setup Instructions
 
-## Contributing
+1. Clone the repository
+```bash
+git clone https://github.com/mahmoud-y0usef/Taskati-Api.git
+cd Taskati-Api
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. Install dependencies
+```bash
+composer install
+```
 
-## Code of Conduct
+3. Configure environment
+```bash
+cp .env.example .env
+php artisan key:generate
+php artisan jwt:secret
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Setup database
+```bash
+php artisan migrate
+```
 
-## Security Vulnerabilities
+5. Start development server
+```bash
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Configuration
+
+### Environment Variables
+```env
+APP_NAME="Taskati API"
+APP_ENV=local
+APP_KEY=base64:generated_key
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=taskati_db
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+JWT_SECRET=generated_jwt_secret
+JWT_TTL=60
+
+MAIL_MAILER=log
+```
+
+## Database Schema
+
+### Users Table
+- id (primary key)
+- name
+- email (unique)
+- email_verified_at
+- password
+- image (nullable)
+- created_at
+- updated_at
+
+### Tasks Table
+- id (primary key)
+- user_id (foreign key)
+- title
+- description (nullable)
+- date
+- start_time
+- end_time
+- color (0-5 index)
+- status (todo, doing, done)
+- created_at
+- updated_at
+
+## Task Model Structure
+
+Tasks follow this JSON structure for Flutter compatibility:
+```json
+{
+  "id": 1,
+  "title": "Task Title",
+  "description": "Task Description",
+  "date": "2025-10-04",
+  "start_time": "09:00:00",
+  "end_time": "10:00:00",
+  "color": 2,
+  "status": "todo",
+  "created_at": "2025-10-04T12:00:00.000000Z",
+  "updated_at": "2025-10-04T12:00:00.000000Z"
+}
+```
+
+## Security Features
+
+- JWT token-based authentication
+- Password hashing using bcrypt
+- SQL injection protection via Eloquent ORM
+- CORS configuration for cross-origin requests
+- Input validation and sanitization
+- Automatic email verification
+
+## Development Notes
+
+- Email verification is automatic (no SMTP configuration required)
+- All emails are logged for development purposes
+- JWT tokens have configurable TTL (default: 60 minutes)
+- Task colors use index system (0-5) for consistency with Flutter
+- Time validation ensures end_time is after start_time
+
+## Testing
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+## Production Deployment
+
+1. Set `APP_ENV=production` in .env
+2. Set `APP_DEBUG=false`
+3. Configure proper database credentials
+4. Run `php artisan config:cache`
+5. Run `php artisan route:cache`
+6. Set up proper web server configuration
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the MIT license.
