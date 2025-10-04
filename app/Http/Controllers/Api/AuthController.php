@@ -387,28 +387,14 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user->hasVerifiedEmail()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Email is already verified'
-            ], 400);
-        }
+        // Auto-verify the email
+        $user->email_verified_at = now();
+        $user->save();
 
-        try {
-            $user->sendEmailVerificationNotification();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Verification email sent successfully'
-            ]);
-        } catch (\Exception $e) {
-
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to send verification email. Please try again later.'
-            ], 500);
-        }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Email verified successfully!'
+        ]);
     }
 
     /**
@@ -442,55 +428,25 @@ class AuthController extends Controller
 
         if ($request->has('email') && $request->email !== $user->email) {
             $user->email = $request->email;
-            $user->email_verified_at = null; // Reset email verification if email changed
+            $user->email_verified_at = now(); // Auto-verify new email
             $updated = true;
         }
 
         if ($updated) {
             $user->save();
 
-            // Send email verification if email was changed
-            if ($request->has('email') && $request->email !== $user->getOriginal('email')) {
-                try {
-                    $user->sendEmailVerificationNotification();
-                    
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Profile updated successfully. A verification email has been sent to your new email address.',
-                        'user' => $user->only(['id', 'name', 'email']),
-                        'email_verification_sent' => true,
-                        'email_verification_required' => true,
-                        'note' => 'Please check your email and verify your new email address to continue using the account.'
-                    ]);
-                } catch (\Exception $e) {
-                    // Log the error but still return success for profile update
-                    Log::error('Failed to send email verification after profile update', [
-                        'user_id' => $user->id,
-                        'email' => $user->email,
-                        'error' => $e->getMessage()
-                    ]);
-                    
-                    return response()->json([
-                        'status' => 'success',
-                        'message' => 'Profile updated successfully, but failed to send verification email.',
-                        'user' => $user->only(['id', 'name', 'email']),
-                        'email_verification_sent' => false,
-                        'email_verification_required' => true,
-                        'note' => 'Please manually request email verification from the settings.'
-                    ]);
-                }
-            }
-
+            // No email verification needed - auto-verified
             return response()->json([
                 'status' => 'success',
-                'message' => 'Profile updated successfully',
-                'user' => $user->only(['id', 'name', 'email'])
+                'message' => 'Profile updated successfully!',
+                'user' => $user->only(['id', 'name', 'email']),
             ]);
         }
 
         return response()->json([
             'status' => 'info',
-            'message' => 'No changes detected'
+            'message' => 'No changes were made to your profile.',
+            'user' => $user->only(['id', 'name', 'email']),
         ]);
     }
 
